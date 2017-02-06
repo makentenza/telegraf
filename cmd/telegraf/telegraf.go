@@ -16,6 +16,7 @@ import (
 	"github.com/influxdata/telegraf/agent"
 	"github.com/influxdata/telegraf/internal/config"
 	"github.com/influxdata/telegraf/logger"
+	"github.com/influxdata/telegraf/registry"
 	"github.com/influxdata/telegraf/registry/inputs"
 	"github.com/influxdata/telegraf/registry/outputs"
 
@@ -273,6 +274,10 @@ func loadExternalPlugins(rootDir string) error {
 			return nil
 		}
 
+		name := strings.TrimPrefix(strings.TrimPrefix(pth, rootDir), string(os.PathSeparator))
+		name = strings.TrimSuffix(name, filepath.Ext(pth))
+		registry.SetName("external" + string(os.PathSeparator) + name)
+		defer registry.SetName("")
 		// Load plugin.
 		_, err = plugin.Open(pth)
 		if err != nil {
